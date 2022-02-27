@@ -2,7 +2,9 @@
   max-width: 1068px;
   margin: 0 auto;
 
-  a.loadPosts {
+  button.loadPosts {
+    background: transparent;
+    border: none;
     font-size: 0.875rem;
     color: var(--pink-600);
     line-height: 1.36125rem;
@@ -16,7 +18,7 @@
 }
 
 .posts {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 
   li {
     list-style: none;
@@ -26,6 +28,12 @@
       line-height: 2.118125rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: color .2s;
+
+      &:hover {
+        color: var(--pink-600);
+      }
     }
 
     p.preview {
