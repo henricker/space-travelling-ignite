@@ -31,7 +31,7 @@
 ```bash
 ## Clonar o repositório
 
-git clone git@github.com:martinsgabriel1956/spacetravelling-ignite.git
+git clone git@github.com:henricker/ignite-jam-stack-challenge.git
 
 # ou
 
