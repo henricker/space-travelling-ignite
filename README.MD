@@ -35,7 +35,7 @@ git clone git@github.com:martinsgabriel1956/spacetravelling-ignite.git
 
 # ou
 
-git clone https://github.com/martinsgabriel1956/spacetravelling-ignite.git
+git clone https://github.com/henricker/ignite-jam-stack-challenge.git
 
 ## Instale as dependências
 
