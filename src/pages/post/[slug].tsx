@@ -38,6 +38,24 @@ interface PostProps {
 export default function Post({ post }: PostProps): ReactElement {
   const { isFallback } = useRouter();
 
+  function estimatedReadTime(): number {
+    const estimatedTime = post.data.content.reduce((total, content) => {
+      // eslint-disable-next-line no-param-reassign
+      total += content.heading.split(' ').length;
+
+      const words = content.body.map(item => item.text.split(' ').length);
+      words.forEach(value => {
+        // eslint-disable-next-line no-param-reassign
+        total += value;
+      });
+      return total;
+    }, 0);
+
+    return Math.ceil(estimatedTime / 200);
+  }
+
+  const readTime = estimatedReadTime();
+
   return isFallback ? (
     <div className={styles.loading}>Carregando...</div>
   ) : (
@@ -85,7 +103,7 @@ export default function Post({ post }: PostProps): ReactElement {
                 marginRight: '10px',
               }}
             />
-            <p>4 min</p>
+            <p>{readTime} min</p>
           </div>
         </div>
 
