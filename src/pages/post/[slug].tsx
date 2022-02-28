@@ -8,9 +8,11 @@ import ptBr from 'date-fns/locale/pt-BR';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Image from 'next/image';
 import { RichText } from 'prismic-dom';
+import ApiSearchResponse from '@prismicio/client/types/ApiSearchResponse';
 import Link from 'next/link';
 import { getPrismicClient } from '../../services/prismic';
 import styles from './post.module.scss';
+import Comments from '../../components/Comments';
 
 interface Post {
   uid: string | null;
@@ -48,9 +50,14 @@ interface PostProps {
       };
     }[];
   };
+  preview: boolean;
 }
 
-export default function Post({ post, navigation }: PostProps): ReactElement {
+export default function Post({
+  post,
+  navigation,
+  preview,
+}: PostProps): ReactElement {
   const { isFallback } = useRouter();
 
   function estimatedReadTime(): number {
@@ -70,8 +77,12 @@ export default function Post({ post, navigation }: PostProps): ReactElement {
   }
 
   const readTime = estimatedReadTime();
-  const totalNavigations =
-    navigation.nextPost[0] && navigation.previousPost[0] ? 2 : 1;
+
+  let totalNavigations = 0;
+  if (!preview) {
+    totalNavigations =
+      navigation?.nextPost[0] && navigation?.previousPost[0] ? 2 : 1;
+  }
 
   return isFallback ? (
     <div className={styles.loading}>Carregando...</div>
@@ -151,31 +162,34 @@ export default function Post({ post, navigation }: PostProps): ReactElement {
             // eslint-disable-next-line no-nested-ternary
             totalNavigations === 2
               ? { justifyContent: 'space-between' }
-              : navigation?.nextPost[0]
+              : navigation?.nextPost?.length > 0
               ? { justifyContent: 'flex-end' }
               : { justifyContent: 'flex-start' }
           }
         >
-          {navigation?.previousPost.length > 0 && (
+          {navigation?.previousPost?.length > 0 && (
             <div className={styles.navigationContainerPrevious}>
-              <Link href={`/post/${navigation?.previousPost[0].uid}`}>
+              <Link href={`/post/${navigation?.previousPost[0]?.uid}`}>
                 <a>
                   <button type="button" style={{ textAlign: 'left' }}>
-                    <p style={{ marginLeft: '0.5rem' }}>Como utilizar hooks</p>
+                    <p style={{ marginLeft: '0.5rem' }}>
+                      {' '}
+                      {navigation.previousPost[0].data.title}
+                    </p>
                     <p style={{ marginLeft: '0.5rem' }}>Post anterior</p>
                   </button>
                 </a>
               </Link>
             </div>
           )}
-          {navigation?.nextPost.length > 0 && (
+          {navigation?.nextPost?.length > 0 && (
             <div className={styles.navigationContainerNext}>
-              <Link href={`/post/${navigation?.nextPost[0].uid}`}>
+              <Link href={`/post/${navigation?.nextPost[0]?.uid}`}>
                 <a>
                   <button type="button" style={{ textAlign: 'right' }}>
                     <p style={{ marginRight: '0.5rem' }}>
                       {' '}
-                      Criando um APP CRA do zero
+                      {navigation.nextPost[0].data.title}
                     </p>
                     <p style={{ marginRight: '0.5rem' }}>Próximo post</p>
                   </button>
@@ -184,6 +198,18 @@ export default function Post({ post, navigation }: PostProps): ReactElement {
             </div>
           )}
         </div>
+        <section>
+          <Comments />
+          {preview && (
+            <div className={styles.buttonModePreview}>
+              <aside>
+                <Link href="/api/exit-preview">
+                  <a>Sair do modo Preview</a>
+                </Link>
+              </aside>
+            </div>
+          )}
+        </section>
       </div>
     </>
   );
@@ -203,28 +229,48 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
   const { slug } = params;
 
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const response = await prismic.getByUID('posts', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
 
-  const nextPost = await prismic.query(
-    [Prismic.Predicates.at('document.type', 'posts')],
-    {
-      pageSize: 1,
-      after: response.id,
-      orderings: '[document.first_publication_date ]',
-    }
-  );
-  const previousPost = await prismic.query(
-    [Prismic.Predicates.at('document.type', 'posts')],
-    {
-      pageSize: 1,
-      after: response.id,
-      orderings: '[document.last_publication_date desc]',
-    }
-  );
+  if (!response) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  let nextPost: ApiSearchResponse = null;
+  let previousPost: ApiSearchResponse = null;
+
+  if (!preview) {
+    nextPost = await prismic.query(
+      [Prismic.Predicates.at('document.type', 'posts')],
+      {
+        pageSize: 1,
+        after: response.id,
+        orderings: '[document.first_publication_date ]',
+      }
+    );
+    previousPost = await prismic.query(
+      [Prismic.Predicates.at('document.type', 'posts')],
+      {
+        pageSize: 1,
+        after: response.id,
+        orderings: '[document.last_publication_date desc]',
+      }
+    );
+  }
 
   const post: Post = {
     uid: response.uid,
@@ -248,9 +294,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       post,
       navigation: {
-        previousPost: previousPost?.results,
-        nextPost: nextPost?.results,
+        previousPost: previousPost?.results ?? null,
+        nextPost: nextPost?.results ?? null,
       },
+      preview,
     },
   };
 };

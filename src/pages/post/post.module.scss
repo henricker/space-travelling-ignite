@@ -68,10 +68,9 @@
   }
 
   .dividingLine {
-    width: 50%;
-    height: 1rem;
+    width: 100%;
     margin: 0 auto;
-    border: 1px solid green;
+    border: 1px solid var(--gray-400);
   }
 
   .navigationPosts {
@@ -84,7 +83,6 @@
     button {
       width: 13rem;
       background: none;
-      border: 1px solid green;
       cursor: pointer;
       height: 3rem;
 
@@ -99,6 +97,20 @@
     }
 
     padding-bottom: 1rem;
+  }
+
+  .buttonModePreview {
+    margin-top: 1rem;
+    background: var(--gray-200);
+    margin-bottom: 1rem;
+    padding: 1rem 0rem;
+    text-align: center;
+
+    a {
+      text-decoration: none;
+      color: var(--dark-600);
+      font-size: 1.2rem;
+    }
   }
 }
 
