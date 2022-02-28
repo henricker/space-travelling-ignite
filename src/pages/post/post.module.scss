@@ -66,6 +66,42 @@
       }
     }
   }
+
+  .dividingLine {
+    width: 50%;
+    height: 1rem;
+    margin: 0 auto;
+    border: 1px solid green;
+  }
+
+  .navigationPosts {
+    padding-top: 1rem; 
+    margin: 0 auto;
+    width: 50%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+      width: 13rem;
+      background: none;
+      border: 1px solid green;
+      cursor: pointer;
+      height: 3rem;
+
+      p:first-child {
+        color: #FFF;
+      }
+
+      p:last-child {
+        color: var(--pink-600);
+        font-size: .8rem;
+      }
+    }
+
+    padding-bottom: 1rem;
+  }
 }
 
 .loading {

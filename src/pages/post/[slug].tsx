@@ -8,6 +8,7 @@ import ptBr from 'date-fns/locale/pt-BR';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Image from 'next/image';
 import { RichText } from 'prismic-dom';
+import Link from 'next/link';
 import { getPrismicClient } from '../../services/prismic';
 import styles from './post.module.scss';
 
@@ -33,9 +34,23 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  navigation: {
+    previousPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+    nextPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+  };
 }
 
-export default function Post({ post }: PostProps): ReactElement {
+export default function Post({ post, navigation }: PostProps): ReactElement {
   const { isFallback } = useRouter();
 
   function estimatedReadTime(): number {
@@ -55,6 +70,7 @@ export default function Post({ post }: PostProps): ReactElement {
   }
 
   const readTime = estimatedReadTime();
+  console.log(navigation);
 
   return isFallback ? (
     <div className={styles.loading}>Carregando...</div>
@@ -127,6 +143,32 @@ export default function Post({ post }: PostProps): ReactElement {
             </div>
           ))}
         </div>
+        <div className={styles.dividingLine} />
+        <div className={styles.navigationPosts}>
+          {navigation?.previousPost.length > 0 && (
+            <Link href={`/post/${navigation?.previousPost[0].uid}`}>
+              <a>
+                <button type="button" style={{ textAlign: 'left' }}>
+                  <p style={{ marginLeft: '0.5rem' }}>Como utilizar hooks</p>
+                  <p style={{ marginLeft: '0.5rem' }}>Post anterior</p>
+                </button>
+              </a>
+            </Link>
+          )}
+          {navigation?.nextPost.length > 0 && (
+            <Link href={`/post/${navigation?.nextPost[0].uid}`}>
+              <a>
+                <button type="button" style={{ textAlign: 'right' }}>
+                  <p style={{ marginRight: '0.5rem' }}>
+                    {' '}
+                    Criando um APP CRA do zero
+                  </p>
+                  <p style={{ marginRight: '0.5rem' }}>Próximo post</p>
+                </button>
+              </a>
+            </Link>
+          )}
+        </div>
       </div>
     </>
   );
@@ -152,6 +194,23 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const response = await prismic.getByUID('posts', String(slug), {});
 
+  const nextPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date ]',
+    }
+  );
+  const previousPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.last_publication_date desc]',
+    }
+  );
+
   const post: Post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
@@ -173,6 +232,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
+      navigation: {
+        previousPost: previousPost?.results,
+        nextPost: nextPost?.results,
+      },
     },
   };
 };
