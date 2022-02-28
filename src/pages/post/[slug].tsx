@@ -5,7 +5,7 @@ import { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import ptBr from 'date-fns/locale/pt-BR';
-import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiPrinter, FiUser } from 'react-icons/fi';
 import Image from 'next/image';
 import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
@@ -15,6 +15,7 @@ import styles from './post.module.scss';
 interface Post {
   uid: string | null;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -106,6 +107,13 @@ export default function Post({ post }: PostProps): ReactElement {
             <p>{readTime} min</p>
           </div>
         </div>
+        <p className={styles.updatedInfo}>
+          * editado em{' '}
+          {format(new Date(post.last_publication_date), 'd MMM y', {
+            locale: ptBr,
+          })}{' '}
+          às {format(new Date(post.last_publication_date), 'HH:mm')}
+        </p>
 
         <div className={styles.content}>
           {post.data.content.map((data, index) => (
@@ -148,6 +156,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const post: Post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       banner: {

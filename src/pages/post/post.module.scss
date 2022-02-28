@@ -22,8 +22,7 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    margin-bottom: 4rem;
-
+    margin-bottom: 0.8rem;
     .info_option {
       margin-right: 1.5rem;
 
@@ -31,6 +30,11 @@
       align-items: center;
       color: var(--gray-400);
     }
+  }
+
+  .updatedInfo {
+    margin-bottom: 4rem;
+    color: var(--gray-400);
   }
 
   .subcontent {
