@@ -5,11 +5,10 @@ import { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import ptBr from 'date-fns/locale/pt-BR';
-import { FiCalendar, FiClock, FiPrinter, FiUser } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Image from 'next/image';
 import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
-import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
 interface Post {
