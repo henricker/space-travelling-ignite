@@ -70,7 +70,8 @@ export default function Post({ post, navigation }: PostProps): ReactElement {
   }
 
   const readTime = estimatedReadTime();
-  console.log(navigation);
+  const totalNavigations =
+    navigation.nextPost[0] && navigation.previousPost[0] ? 2 : 1;
 
   return isFallback ? (
     <div className={styles.loading}>Carregando...</div>
@@ -144,29 +145,43 @@ export default function Post({ post, navigation }: PostProps): ReactElement {
           ))}
         </div>
         <div className={styles.dividingLine} />
-        <div className={styles.navigationPosts}>
+        <div
+          className={styles.navigationPosts}
+          style={
+            // eslint-disable-next-line no-nested-ternary
+            totalNavigations === 2
+              ? { justifyContent: 'space-between' }
+              : navigation?.nextPost[0]
+              ? { justifyContent: 'flex-end' }
+              : { justifyContent: 'flex-start' }
+          }
+        >
           {navigation?.previousPost.length > 0 && (
-            <Link href={`/post/${navigation?.previousPost[0].uid}`}>
-              <a>
-                <button type="button" style={{ textAlign: 'left' }}>
-                  <p style={{ marginLeft: '0.5rem' }}>Como utilizar hooks</p>
-                  <p style={{ marginLeft: '0.5rem' }}>Post anterior</p>
-                </button>
-              </a>
-            </Link>
+            <div className={styles.navigationContainerPrevious}>
+              <Link href={`/post/${navigation?.previousPost[0].uid}`}>
+                <a>
+                  <button type="button" style={{ textAlign: 'left' }}>
+                    <p style={{ marginLeft: '0.5rem' }}>Como utilizar hooks</p>
+                    <p style={{ marginLeft: '0.5rem' }}>Post anterior</p>
+                  </button>
+                </a>
+              </Link>
+            </div>
           )}
           {navigation?.nextPost.length > 0 && (
-            <Link href={`/post/${navigation?.nextPost[0].uid}`}>
-              <a>
-                <button type="button" style={{ textAlign: 'right' }}>
-                  <p style={{ marginRight: '0.5rem' }}>
-                    {' '}
-                    Criando um APP CRA do zero
-                  </p>
-                  <p style={{ marginRight: '0.5rem' }}>Próximo post</p>
-                </button>
-              </a>
-            </Link>
+            <div className={styles.navigationContainerNext}>
+              <Link href={`/post/${navigation?.nextPost[0].uid}`}>
+                <a>
+                  <button type="button" style={{ textAlign: 'right' }}>
+                    <p style={{ marginRight: '0.5rem' }}>
+                      {' '}
+                      Criando um APP CRA do zero
+                    </p>
+                    <p style={{ marginRight: '0.5rem' }}>Próximo post</p>
+                  </button>
+                </a>
+              </Link>
+            </div>
           )}
         </div>
       </div>
